@@ -1,6 +1,5 @@
 package com.qq.vip.singleangel.sight.ClassDefined.WiFiP2P;
 
-import com.qq.vip.singleangel.sight.Tools.DebugTool.MyLog;
 
 import java.io.Serializable;
 
@@ -144,7 +143,7 @@ public class Device implements Serializable {
 
     public boolean checkHash(int zero){
         if (0 == zero){   //生成的hash出错
-            MyLog.debug(TAG, "Hash is going wrong.");
+      //      MyLog.debug(TAG, "Hash is going wrong.");
             return false;
         }else {
             return true;
