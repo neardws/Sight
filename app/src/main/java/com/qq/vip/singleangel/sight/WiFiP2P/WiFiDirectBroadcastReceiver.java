@@ -8,11 +8,14 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
 
 import com.qq.vip.singleangel.sight.ClassDefined.WiFiP2P.Device;
+import com.qq.vip.singleangel.sight.Tools.DebugTool.MyLog;
 
 /**
  * Created by singl on 2017/11/14.
  */
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
+
+    public static final String TAG = "WiFiDirectBroadcastReceiver";
 
     private WifiP2pManager manager;
     private WifiP2pManager.Channel channel;
@@ -40,10 +43,16 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             //如果WIFI开启
             if (WifiP2pManager.WIFI_P2P_STATE_ENABLED == state){
                 //设置标志位
+                Device device = service.getDevice();
+                device.setWifiEnabled(Device.WIFI_ENABLED);
+                service.updateDevice(device);
             }else if (WifiP2pManager.WIFI_P2P_STATE_DISABLED == state){  //WIFI关闭
                 //看看是否调用什么函数开启WIFI
+                Device device = service.getDevice();
+                device.setWifiEnabled(Device.WIFI_DISABLED);
+                service.updateDevice(device);
             }else {  //出错参数
-
+                MyLog.debug(TAG, "WIFI_P2P_STATE_CHANGED_ACTION is error.");
             }
         }
         //设备Discovery开始或停止时触发
@@ -113,8 +122,22 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                 String deviceAddress = device.deviceAddress;  //该节点的mac地址
                 int deviceStatus = device.status;
                 Device thisDevice = new Device(deviceAddress);
+                thisDevice.setDeviceName(deviceName);
+                if (isGroupOwner){
+                    thisDevice.setGroupOwner(Device.IS_GROUPOWNER);
+                }else {
+                    thisDevice.setGroupOwner(Device.NOT_GROUPOWNER);
+                }
+                thisDevice.setGroupOwner(isGroupOwner);
+                thisDevice.setMacAdd(deviceAddress);
+                switch (deviceStatus){
+                    case WifiP2pDevice.CONNECTED:
+                        thisDevice.setConnected(Device.CONNECTED);
+                        break;
+                    default:
+                        thisDevice.setConnected(Device.NOT_CONNECTED);
+                }
                 service.updateDevice(thisDevice);
-
             }
 
         }

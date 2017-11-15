@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Sight</string>
+
+    <!-- 按钮名字 -->
+    <string name="sendRequest">发送</string>
+    <string name="requestIP">获得IP、MAC</string>
+
+
 </resources>

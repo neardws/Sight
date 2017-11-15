@@ -1,7 +1,9 @@
 package com.qq.vip.singleangel.sight.ConnectWithServer;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -30,6 +32,9 @@ import java.util.TimerTask;
 public class HeartBeatsService extends Service {
     private static final String TAG = "HeartBeats";
 
+    private BroadcastReceiver receiver = null;   //广播接收，Action
+    private final IntentFilter intentFilter = new IntentFilter();
+
     private Socket client;
     private TimeTools timeTools;
     private Timer timer;
@@ -42,6 +47,14 @@ public class HeartBeatsService extends Service {
         timeTools = new TimeTools();
         timeTools.syncTime();  //时间同步
         getInfo = new GetInfo();
+
+        intentFilter.addAction(Action.START_CONNECT);
+        intentFilter.addAction(Action.START_DISCOVER);
+        intentFilter.addAction(Action.STOP_CONNECT);
+        intentFilter.addAction(Action.STOP_DISCOVER);
+
+        receiver = new ReactionBroadcast();
+        registerReceiver(receiver,intentFilter);
 
         new Thread(new Runnable() {
             @Override
@@ -128,11 +141,6 @@ public class HeartBeatsService extends Service {
     }
 
     public void dealWithAction(Action action){
-        /**
-         Message message = new Message();
-         message.obj = action;
-         mainActivity.doActionHandler.sendMessage(message);
-         doActionHandler.obtainMessage(1,message); **/
         Intent intent = new Intent();
         intent.setAction(action.getAction());
         sendBroadcast(intent);

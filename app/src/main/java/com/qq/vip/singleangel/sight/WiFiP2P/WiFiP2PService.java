@@ -8,9 +8,11 @@ import android.content.IntentFilter;
 import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 
+import com.qq.vip.singleangel.sight.ClassDefined.Server.Action;
 import com.qq.vip.singleangel.sight.ClassDefined.WiFiP2P.Device;
 import com.qq.vip.singleangel.sight.ClassDefined.WiFiP2P.Peers;
 import com.qq.vip.singleangel.sight.Tools.DebugTool.MyLog;
@@ -95,11 +97,9 @@ public class WiFiP2PService extends Service implements WifiP2pManager.ChannelLis
                 discoverPeers(channel);
                 break;
             case CONNECT:
-                WifiP2pConfig config = new WifiP2pConfig();
-                config.wps.setup = WpsInfo.PBC;
-                config.groupOwnerIntent = 0;
-                config.deviceAddress = connectMacAdd;
-                connect(config);
+                Bundle bundle = intent.getExtras();
+                Action act = (Action) bundle.getParcelable(CONNECT);
+                connect(createConfig(act));
                 break;
             case START_SERVER:
                 break;
@@ -226,6 +226,20 @@ public class WiFiP2PService extends Service implements WifiP2pManager.ChannelLis
             MyLog.debug(TAG, "Stop Discover peers second part, do nothing.");
         }else {
             MyLog.debug(TAG, "Stop Discover peers third part.");
+        }
+    }
+
+
+    public WifiP2pConfig createConfig(Action action){
+        if (Action.START_CONNECT.equals(action.getAction())){
+            WifiP2pConfig config = new WifiP2pConfig();
+            config.deviceAddress = action.getConnectMacAdd();
+            config.groupOwnerIntent = 0;
+            config.wps.setup = WpsInfo.PBC;
+            return config;
+        }else {
+            MyLog.debug(TAG, "Create config while action is error.");
+            return null;
         }
     }
 
@@ -379,6 +393,15 @@ public class WiFiP2PService extends Service implements WifiP2pManager.ChannelLis
     public boolean updateDevice(Device d){
         device.updateDevice(d);
         return true;
+    }
+
+    public Device getDevice(){
+        if (device != null){
+            return device;
+        }else {
+            MyLog.debug(TAG, "Device is null");
+            return null;
+        }
     }
 
     /**
